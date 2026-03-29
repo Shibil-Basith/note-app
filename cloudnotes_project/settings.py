@@ -54,7 +54,7 @@ WSGI_APPLICATION = 'cloudnotes_project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'noteapp',  # make sure this DB exists in RDS
+        'NAME': 'noteappdb',  # make sure this DB exists in RDS
         'USER': 'admin',
         'PASSWORD': 'Admin123',
         'HOST': 'noteappdb.c1w8qqauame6.ap-south-1.rds.amazonaws.com',
