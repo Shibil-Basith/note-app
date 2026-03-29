@@ -1,3 +1,6 @@
+import pymysql
+pymysql.install_as_MySQLdb()
+
 import os
 from pathlib import Path
 
@@ -59,6 +62,9 @@ DATABASES = {
         'PASSWORD': 'Admin123',
         'HOST': 'noteappdb.c1w8qqauame6.ap-south-1.rds.amazonaws.com',
         'PORT': '3306',
+        'OPTIONS': {
+            'ssl': {'ssl': {}},
+        }
     }
 }
 
