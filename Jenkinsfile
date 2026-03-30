@@ -9,7 +9,7 @@ pipeline {
 
         stage('Clone Repo') {
             steps {
-                git 'https://github.com/Shibil-Basith/note-app.git'
+                git branch: 'main', url: 'https://github.com/Shibil-Basith/note-app.git'
             }
         }
 
