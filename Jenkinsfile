@@ -43,7 +43,7 @@ pipeline {
             steps {
                 sh '''
                 aws autoscaling start-instance-refresh \
-                  --auto-scaling-group-name noteapp-asg
+                  --auto-scaling-group-name noteapp-server-asg
                 '''
             }
         }
