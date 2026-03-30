@@ -17,10 +17,11 @@ RUN pip install -r requirements.txt
 
 COPY . .
 
-# Create staticfiles dir and collect static files at build time
+# Collect static files at build time
 RUN mkdir -p /app/staticfiles && \
     SECRET_KEY=dummy-build-key \
     DEBUG=False \
+    HTTPS_ENABLED=False \
     DB_HOST=localhost \
     DB_NAME=dummy \
     DB_USER=dummy \
