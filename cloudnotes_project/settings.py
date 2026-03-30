@@ -1,9 +1,7 @@
 import pymysql
 pymysql.install_as_MySQLdb()
-
 import os
 from pathlib import Path
-
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # 🔐 SECRET KEY (from env / Parameter Store)
@@ -30,7 +28,7 @@ INSTALLED_APPS = [
 # 🔧 Middleware
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # static files
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -70,7 +68,7 @@ DATABASES = {
         'HOST': os.environ.get('DB_HOST'),
         'PORT': os.environ.get('DB_PORT', '3306'),
         'OPTIONS': {
-            'ssl': {'ssl': {}},  # required for RDS
+            'ssl': {'ssl': {}},
         }
     }
 }
@@ -89,12 +87,10 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# 📦 Static files (IMPORTANT for Docker)
+# 📦 Static files
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
-
-# WhiteNoise (serves static files via Gunicorn)
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # 🔑 Default auto field
@@ -105,15 +101,11 @@ LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/'
 
-# 🔒 SECURITY (Production Best Practices)
-
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
-
+# 🔒 SECURITY (configurable via env for HTTP/HTTPS flexibility)
+HTTPS_ENABLED = os.environ.get('HTTPS_ENABLED', 'False') == 'True'
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https') if HTTPS_ENABLED else None
+SESSION_COOKIE_SECURE = HTTPS_ENABLED
+CSRF_COOKIE_SECURE = HTTPS_ENABLED
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
-
-# Optional (enable later when HTTPS is ready)
-# SECURE_SSL_REDIRECT = True
+# SECURE_SSL_REDIRECT = HTTPS_ENABLED  # enable when ready
