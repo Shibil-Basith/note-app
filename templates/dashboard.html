@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard — Cloud Notes Pro{% endblock %}
+{% block content %}
+<div class="dashboard-page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Good day, <span class="accent">{{ request.user.username }}</span> 👋</h1>
+      <p class="page-subtitle">You have {{ total_notes }} note{{ total_notes|pluralize }} in your workspace.</p>
+    </div>
+    <a href="{% url 'create_note' %}" class="btn btn-primary">
+      <i class="fa-solid fa-plus"></i> New Note
+    </a>
+  </div>
+
+  <div class="search-filter-bar">
+    <form method="get" class="search-form">
+      <div class="search-input-wrap">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" name="q" value="{{ query }}" placeholder="Search notes..." class="search-input">
+        {% if query %}<button type="button" class="search-clear" onclick="window.location='{% url 'dashboard' %}'"><i class="fa-solid fa-xmark"></i></button>{% endif %}
+      </div>
+      <div class="filter-group">
+        {% for val, label in categories %}
+        <a href="?category={{ val }}{% if query %}&q={{ query }}{% endif %}"
+           class="filter-chip {% if selected_category == val %}active{% endif %}">{{ label }}</a>
+        {% endfor %}
+        {% if selected_category %}
+        <a href="{% url 'dashboard' %}{% if query %}?q={{ query }}{% endif %}" class="filter-chip clear-filter">
+          <i class="fa-solid fa-xmark"></i> Clear
+        </a>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+
+  {% if pinned_notes %}
+  <section class="notes-section">
+    <h2 class="section-label"><i class="fa-solid fa-thumbtack"></i> Pinned</h2>
+    <div class="notes-grid">
+      {% for note in pinned_notes %}
+      {% include 'partials/note_card.html' with note=note %}
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if regular_notes %}
+  <section class="notes-section">
+    <h2 class="section-label"><i class="fa-regular fa-note-sticky"></i> All Notes</h2>
+    <div class="notes-grid">
+      {% for note in regular_notes %}
+      {% include 'partials/note_card.html' with note=note %}
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if not notes %}
+  <div class="empty-state">
+    <div class="empty-icon"><i class="fa-regular fa-note-sticky"></i></div>
+    <h3>No notes yet</h3>
+    <p>{% if query %}No notes match your search.{% else %}Start capturing your ideas.{% endif %}</p>
+    {% if not query %}
+    <a href="{% url 'create_note' %}" class="btn btn-primary">
+      <i class="fa-solid fa-plus"></i> Create your first note
+    </a>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

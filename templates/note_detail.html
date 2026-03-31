@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}{{ note.title }} — Cloud Notes Pro{% endblock %}
+{% block content %}
+<div class="detail-page">
+  <div class="form-header">
+    <a href="{% url 'dashboard' %}" class="back-link"><i class="fa-solid fa-arrow-left"></i> Back</a>
+    <div class="detail-actions">
+      <a href="{% url 'edit_note' note.pk %}" class="btn btn-ghost btn-sm"><i class="fa-solid fa-pen"></i> Edit</a>
+      <a href="{% url 'delete_note' note.pk %}" class="btn btn-danger btn-sm"><i class="fa-solid fa-trash"></i> Delete</a>
+    </div>
+  </div>
+
+  <div class="detail-card glass">
+    <div class="detail-meta">
+      <span class="note-category-badge cat-{{ note.category }}-badge">{{ note.get_category_display }}</span>
+      {% if note.is_pinned %}<span class="pin-badge"><i class="fa-solid fa-thumbtack"></i> Pinned</span>{% endif %}
+      <span class="note-date"><i class="fa-regular fa-clock"></i> Created {{ note.created_at|date:"F j, Y" }}</span>
+      {% if note.updated_at != note.created_at %}
+      <span class="note-date"><i class="fa-solid fa-pen"></i> Updated {{ note.updated_at|date:"F j, Y" }}</span>
+      {% endif %}
+    </div>
+    <h1 class="detail-title">{{ note.title }}</h1>
+    <div class="detail-content">{{ note.content|linebreaks }}</div>
+  </div>
+</div>
+{% endblock %}
