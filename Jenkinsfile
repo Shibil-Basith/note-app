@@ -5,6 +5,11 @@ pipeline {
         IMAGE_TAG  = "build-${env.BUILD_NUMBER}"
     }
     stages {
+        stage('Clean Workspace') {
+            steps {
+                cleanWs()
+            }
+        }
         stage('Clone Repo') {
             steps {
                 git branch: 'main', url: 'https://github.com/Shibil-Basith/note-app.git'
