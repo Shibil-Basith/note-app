@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard — Cloud Notes Pro{% endblock %}
+
+{% block extra_head %}
+<style>
+.dash-hero {
+  padding: 40px 0 32px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  margin-bottom: 36px;
+  position: relative;
+  overflow: hidden;
+}
+.dash-hero::before {
+  content: '';
+  position: absolute; top: -60px; right: -60px;
+  width: 280px; height: 280px;
+  background: radial-gradient(circle, rgba(99,102,241,.1), transparent 70%);
+  border-radius: 50%; pointer-events: none;
+  animation: dashGlow 6s ease-in-out infinite alternate;
+}
+@keyframes dashGlow {
+  from { transform: scale(1) translate(0,0); opacity:.6; }
+  to   { transform: scale(1.15) translate(-20px,10px); opacity:1; }
+}
+.dash-greeting {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(24px,4vw,36px);
+  font-weight: 800; letter-spacing: -0.8px;
+  margin-bottom: 6px;
+}
+.dash-sub { color: #475569; font-size: 15px; }
+.dash-sub strong { color: #818cf8; }
+
+.dash-actions { display: flex; align-items: center; gap: 12px; }
+
+/* animated count badge */
+.note-count-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(99,102,241,.1); border: 1px solid rgba(99,102,241,.2);
+  border-radius: 100px; padding: 6px 16px;
+  font-size: 13px; font-weight: 600; color: #818cf8;
+}
+.count-dot { width: 6px; height: 6px; border-radius: 50%; background: #6366f1; animation: dotBlink 2s infinite; }
+@keyframes dotBlink { 0%,100%{opacity:1}50%{opacity:.3} }
+
+/* search bar enhanced */
+.search-wrap {
+  position: relative;
+  margin-bottom: 32px;
+}
+.search-bar-inner {
+  display: flex; align-items: center;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 100px;
+  padding: 0 20px;
+  max-width: 480px;
+  transition: all .25s;
+}
+.search-bar-inner:focus-within {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99,102,241,.12), 0 0 30px rgba(99,102,241,.1);
+  background: rgba(255,255,255,.06);
+}
+.search-bar-inner i { color: #334155; font-size: 14px; margin-right: 10px; }
+.search-bar-inner input {
+  background: none; border: none; outline: none;
+  color: #f1f5f9; font-family: 'DM Sans', sans-serif;
+  font-size: 15px; padding: 12px 0; flex: 1;
+}
+.search-bar-inner input::placeholder { color: #334155; }
+
+/* filter chips */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.chip {
+  padding: 6px 16px; border-radius: 100px;
+  font-size: 12px; font-weight: 500;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+  color: #475569; transition: all .22s; cursor: pointer;
+  text-decoration: none;
+}
+.chip:hover { color: #94a3b8; border-color: rgba(255,255,255,.15); background: rgba(255,255,255,.07); }
+.chip.active { background: rgba(99,102,241,.12); border-color: rgba(99,102,241,.3); color: #818cf8; }
+.chip.clear  { color: #f87171; border-color: rgba(239,68,68,.2); }
+
+/* section headers */
+.sec-head {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1.8px; color: #1e293b;
+  margin-bottom: 20px;
+}
+.sec-head i { color: #6366f1; font-size: 12px; }
+
+/* empty state */
+.empty {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 16px;
+  padding: 80px 40px; text-align: center;
+  border: 1px dashed rgba(255,255,255,.07);
+  border-radius: 20px; margin-top: 16px;
+}
+.empty-icon { font-size: 52px; color: #1e293b; }
+.empty h3 { font-family: 'Syne', sans-serif; font-size: 20px; color: #334155; }
+.empty p { color: #1e293b; font-size: 14px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-page">
+  <div class="dash-hero fade-up">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+      <div>
+        <h1 class="dash-greeting">Good day, <span style="background:linear-gradient(135deg,#818cf8,#c4b5fd);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">{{ request.user.username }}</span> 👋</h1>
+        <p class="dash-sub">You have <strong>{{ total_notes }} note{{ total_notes|pluralize }}</strong> in your workspace.</p>
+      </div>
+      <div class="dash-actions">
+        <span class="note-count-badge"><span class="count-dot"></span>{{ total_notes }} notes</span>
+        <a href="{% url 'create_note' %}" class="btn btn-primary"><i class="fa-solid fa-plus"></i> New Note</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEARCH -->
+  <div class="search-wrap fade-up" style="transition-delay:.1s">
+    <form method="get">
+      <div class="search-bar-inner">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" name="q" value="{{ query }}" placeholder="Search notes…">
+        {% if query %}<button type="button" style="background:none;border:none;color:#475569;cursor:pointer;font-size:14px;padding:4px;" onclick="window.location='{% url 'dashboard' %}'"><i class="fa-solid fa-xmark"></i></button>{% endif %}
+      </div>
+      <div class="chips">
+        {% for val, label in categories %}
+        <a href="?category={{ val }}{% if query %}&q={{ query }}{% endif %}"
+           class="chip {% if selected_category == val %}active{% endif %}">{{ label }}</a>
+        {% endfor %}
+        {% if selected_category %}
+        <a href="{% url 'dashboard' %}{% if query %}?q={{ query }}{% endif %}" class="chip clear"><i class="fa-solid fa-xmark"></i> Clear</a>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+
+  {% if pinned_notes %}
+  <section class="notes-section fade-up" style="transition-delay:.2s">
+    <h2 class="sec-head"><i class="fa-solid fa-thumbtack"></i> Pinned</h2>
+    <div class="notes-grid">
+      {% for note in pinned_notes %}{% include 'partials/note_card.html' with note=note %}{% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if regular_notes %}
+  <section class="notes-section fade-up" style="transition-delay:.3s">
+    <h2 class="sec-head"><i class="fa-regular fa-note-sticky"></i> All Notes</h2>
+    <div class="notes-grid">
+      {% for note in regular_notes %}{% include 'partials/note_card.html' with note=note %}{% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if not notes %}
+  <div class="empty fade-up" style="transition-delay:.2s">
+    <div class="empty-icon"><i class="fa-regular fa-note-sticky"></i></div>
+    <h3>{% if query %}No notes found{% else %}No notes yet{% endif %}</h3>
+    <p>{% if query %}Try a different search term.{% else %}Start capturing your ideas.{% endif %}</p>
+    {% if not query %}
+    <a href="{% url 'create_note' %}" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Create your first note</a>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
